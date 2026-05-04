@@ -11,8 +11,8 @@ export default async function handler(req, res) {
     const { name, email, message } = req.body;
 
     await resend.emails.send({
-        from: "MiniIk Contact <[EMAIL_ADDRESS]>",
-        to: "[EMAIL_ADDRESS]",
+        from: "MiniIk Contact <contact@miniik.com>",
+        to: "srssdesing@gmail.com",
         subject: `Nuevo mensaje de ${name}`,
         reply_to: email,
         html: `
