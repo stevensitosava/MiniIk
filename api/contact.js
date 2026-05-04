@@ -8,18 +8,23 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { name, email, message } = req.body;
+    // 🔥 FIX: parse body safely
+    const body = typeof req.body === "string"
+      ? JSON.parse(req.body)
+      : req.body;
+
+    const { name, email, message } = body;
 
     await resend.emails.send({
-        from: "MiniIk Contact <contact@miniik.com>",
-        to: "srssdesing@gmail.com",
-        subject: `Nuevo mensaje de ${name}`,
-        reply_to: email,
-        html: `
-            <p><b>Nombre:</b> ${name}</p>
-            <p><b>Email:</b> ${email}</p>
-            <p><b>Mensaje:</b> ${message}</p>
-        `,
+      from: "MiniIk <contact@miniik.com>",
+      to: "srssdesing@gmail.com",
+      subject: `New message from ${name}`,
+      reply_to: email,
+      html: `
+        <p><b>Name:</b> ${name}</p>
+        <p><b>Email:</b> ${email}</p>
+        <p><b>Message:</b> ${message}</p>
+      `,
     });
 
     return res.status(200).json({ success: true });
@@ -27,6 +32,8 @@ export default async function handler(req, res) {
   } catch (error) {
     console.error(error);
 
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({
+      error: error.message
+    });
   }
 }
