@@ -201,10 +201,10 @@ contactForm.addEventListener('submit', function (e) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      name: fields.name.value,
-      email: fields.email.value,
-      message: fields.message.value
-    })
+  name: fields.name.el.value,
+  email: fields.email.el.value,
+  message: fields.message.el.value
+})
   })
   .then(async res => {
     const data = await res.json();
