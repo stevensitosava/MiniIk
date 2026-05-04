@@ -8,20 +8,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 🔥 FORZAR lectura correcta del body
-    const text = await new Promise((resolve, reject) => {
-      let data = "";
+    // 🔥 CLAVE: forzar parseo correcto en Vercel
+    const body = req.body;
 
-      req.on("data", chunk => (data += chunk));
-      req.on("end", () => resolve(data));
-      req.on("error", reject);
-    });
+    const { name, email, message } = body || {};
 
-    const body = JSON.parse(text || "{}");
-
-    console.log("BODY RECEIVED:", body);
-
-    const { name, email, message } = body;
+    console.log("BODY:", body);
 
     await resend.emails.send({
       from: "MiniIk <contact@miniik.com>",
@@ -38,7 +30,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: true });
 
   } catch (error) {
-    console.error("ERROR:", error);
+    console.error(error);
 
     return res.status(500).json({
       error: error.message
