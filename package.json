@@ -1,0 +1,24 @@
+{
+  "name": "miniik",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stevensitosava/MiniIk.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/stevensitosava/MiniIk/issues"
+  },
+  "homepage": "https://github.com/stevensitosava/MiniIk#readme",
+  "dependencies": {
+    "resend": "^6.12.2"
+  }
+}
