@@ -5,6 +5,13 @@
 
 'use strict';
 
+const currentYear = document.getElementById('currentYear');
+if (currentYear) {
+  currentYear.textContent = new Date().getFullYear();
+}
+
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
 /* ============================================================
    NAVBAR — scroll state
    ============================================================ */
@@ -34,7 +41,13 @@ function updateActiveNavLink() {
   });
 
   navAnchors.forEach(link => {
-    link.classList.toggle('active', link.getAttribute('href') === `#${current}`);
+    const isActive = link.getAttribute('href') === `#${current}`;
+    link.classList.toggle('active', isActive);
+    if (isActive) {
+      link.setAttribute('aria-current', 'page');
+    } else {
+      link.removeAttribute('aria-current');
+    }
   });
 }
 
@@ -80,6 +93,13 @@ hamburger.addEventListener('click', () => {
 
 overlay.addEventListener('click', closeMenu);
 
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && navLinks.classList.contains('open')) {
+    closeMenu();
+    hamburger.focus();
+  }
+});
+
 /* Close menu when a nav link is tapped */
 navAnchors.forEach(link => link.addEventListener('click', closeMenu));
 
@@ -103,7 +123,10 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     const offset = navbar.offsetHeight;
     const top    = target.getBoundingClientRect().top + window.scrollY - offset;
 
-    window.scrollTo({ top, behavior: 'smooth' });
+    window.scrollTo({
+      top,
+      behavior: prefersReducedMotion.matches ? 'auto' : 'smooth',
+    });
   });
 });
 
@@ -166,6 +189,7 @@ const fields = {
 
 function showFieldError(field, message) {
   field.el.classList.toggle('error', !!message);
+  field.el.setAttribute('aria-invalid', message ? 'true' : 'false');
   field.error.textContent = message;
   field.error.classList.toggle('visible', !!message);
 }
@@ -190,7 +214,11 @@ contactForm.addEventListener('submit', function (e) {
   e.preventDefault();
 
   const allValid = Object.keys(fields).every(key => validateField(key));
-  if (!allValid) return;
+  if (!allValid) {
+    const firstInvalid = Object.values(fields).find(field => field.el.classList.contains('error'));
+    if (firstInvalid) firstInvalid.el.focus();
+    return;
+  }
 
   const originalLabel = submitBtn.textContent;
   submitBtn.disabled = true;
@@ -221,7 +249,7 @@ contactForm.addEventListener('submit', function (e) {
   })
   .catch(err => {
     console.error(err);
-    alert('Error sending message ❌');
+    alert('Error sending message. Please try again.');
   })
   .finally(() => {
     submitBtn.disabled = false;

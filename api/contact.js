@@ -6,6 +6,19 @@ export const config = {
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+function normalizeString(value) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function escapeHtml(value) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -23,34 +36,42 @@ export default async function handler(req, res) {
       req.on("error", reject);
     });
 
-    console.log("RAW BODY:", raw);
-
     const body = JSON.parse(raw || "{}");
 
     // 🟢 Seguridad contra undefined
-    const name = body.name || "No name";
-    const email = body.email || "No email";
-    const message = body.message || "No message";
+    const name = normalizeString(body.name);
+    const email = normalizeString(body.email);
+    const message = normalizeString(body.message);
 
     // 🧠 Validación básica (IMPORTANTE)
-    if (!email || !message) {
+    if (!name || !email || !message) {
       return res.status(400).json({
-        error: "Email and message are required"
+        error: "Name, email, and message are required"
       });
     }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({
+        error: "Please enter a valid email address"
+      });
+    }
+
+    const safeName = escapeHtml(name);
+    const safeEmail = escapeHtml(email);
+    const safeMessage = escapeHtml(message).replace(/\n/g, "<br>");
 
     // 📧 Enviar email con Resend
     const data = await resend.emails.send({
       from: "MiniIk <contact@miniik.com>",
       to: "srssdesing@gmail.com",
       subject: `New message from ${name}`,
-      reply_to: email,
+      replyTo: email,
       html: `
         <h2>New contact form message</h2>
-        <p><b>Name:</b> ${name}</p>
-        <p><b>Email:</b> ${email}</p>
+        <p><b>Name:</b> ${safeName}</p>
+        <p><b>Email:</b> ${safeEmail}</p>
         <p><b>Message:</b></p>
-        <p>${message}</p>
+        <p>${safeMessage}</p>
       `,
     });
 
