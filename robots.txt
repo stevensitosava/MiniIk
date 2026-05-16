@@ -1,0 +1,6 @@
+# MiniIk — robots.txt
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://miniik.com/sitemap.xml

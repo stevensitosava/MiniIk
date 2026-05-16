@@ -156,14 +156,38 @@ const contactForm = document.getElementById('contactForm');
 const formSuccess = document.getElementById('formSuccess');
 const submitBtn   = document.getElementById('submitBtn');
 
+/* i18n — read <html lang="…"> and pick the matching message set.
+   Falls back to English for any unknown locale. */
+const I18N = {
+  en: {
+    nameRequired:    'Name is required.',
+    nameMin:         'Name must be at least 2 characters.',
+    emailRequired:   'Email is required.',
+    emailInvalid:    'Please enter a valid email address.',
+    messageRequired: 'Message is required.',
+    messageMin:      'Message must be at least 10 characters.',
+    sending:         'Sending…',
+  },
+  nl: {
+    nameRequired:    'Naam is verplicht.',
+    nameMin:         'Naam moet minimaal 2 tekens bevatten.',
+    emailRequired:   'E-mail is verplicht.',
+    emailInvalid:    'Voer een geldig e-mailadres in.',
+    messageRequired: 'Bericht is verplicht.',
+    messageMin:      'Bericht moet minimaal 10 tekens bevatten.',
+    sending:         'Verzenden…',
+  },
+};
+const T = I18N[(document.documentElement.lang || 'en').slice(0, 2)] || I18N.en;
+
 /* Field definitions with validators */
 const fields = {
   name: {
     el:    document.getElementById('name'),
     error: document.getElementById('nameError'),
     validate(val) {
-      if (!val.trim())        return 'Name is required.';
-      if (val.trim().length < 2) return 'Name must be at least 2 characters.';
+      if (!val.trim())           return T.nameRequired;
+      if (val.trim().length < 2) return T.nameMin;
       return '';
     },
   },
@@ -171,8 +195,8 @@ const fields = {
     el:    document.getElementById('email'),
     error: document.getElementById('emailError'),
     validate(val) {
-      if (!val.trim()) return 'Email is required.';
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return 'Please enter a valid email address.';
+      if (!val.trim()) return T.emailRequired;
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return T.emailInvalid;
       return '';
     },
   },
@@ -180,8 +204,8 @@ const fields = {
     el:    document.getElementById('message'),
     error: document.getElementById('messageError'),
     validate(val) {
-      if (!val.trim())           return 'Message is required.';
-      if (val.trim().length < 10) return 'Message must be at least 10 characters.';
+      if (!val.trim())            return T.messageRequired;
+      if (val.trim().length < 10) return T.messageMin;
       return '';
     },
   },
@@ -222,7 +246,7 @@ contactForm.addEventListener('submit', function (e) {
 
   const originalLabel = submitBtn.textContent;
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Sending…';
+  submitBtn.textContent = T.sending;
   submitBtn.style.opacity = '0.75';
 
   fetch('/api/contact', {
